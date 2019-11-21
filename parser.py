@@ -13,6 +13,7 @@ class Parse:
 	def __init__(self, path='data/jester-data-1.csv'):
 		self.path = path
 		self.ratings = None
+		self.num_answered = None
 		self.joke_avgs = []
 		self.user_avgs = []
 		self.jokes = 0
