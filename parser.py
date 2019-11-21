@@ -23,7 +23,7 @@ class Parse:
 
 	def parse(self):
 		data = pd.read_csv(self.path, header=None)
-		self.num_answered = data[0]
+		self.num_answered = data[0].tolist()
 		self.ratings = data.drop(0, axis=1)
 		self.jokes = self.ratings.shape[1]
 		self.users = self.ratings.shape[0]
@@ -41,10 +41,13 @@ class Parse:
 			self.joke_avgs.append(round(total/self.users, 2))
 
 	def print(self):
-		print("--PARSED DATA--")
+		print("------------------------PARSED DATA-----------------------")
 		print("jokes: {}".format(self.jokes))
 		print("users: {}".format(self.users))
-		print(self.ratings)
+		print("\nRATINGS MATRIX: ")
+		print(self.ratings.head())
+		print("\nNumber of jokes answered per user: ")
+		print(self.num_answered[:100])
 
 			
 
