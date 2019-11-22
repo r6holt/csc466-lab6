@@ -4,50 +4,38 @@
 import sys
 import numpy as np
 from importer import Importer
-from InduceC45 import DecisionTree
 import classifier
 import json
 import string
 from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
-import randomForest
-
-THRESH = 0.9
-
+from random import randint
+import csv
 
 
 def main():
-	restrictions = None
-	if len(sys.argv) >= 3:
-		path = sys.argv[1]
-		n = int(sys.argv[2])
-		if len(sys.argv) == 4:
-			THRESH = float(sys.argv[3])
-		# if len(sys.argv) = 5:
-		# 	THRESH = sys.argv[4]
+	if len(sys.argv) == 4:
+		method = int(sys.argv[1])
+		size = int(sys.argv[2])
+		repeats = int(sys.argv[3])
+
 	else:
-		print("syntax: python3 validaiton.py <path> <n-fold (int)>")
+		print("syntax: python3 validaiton.py <method (int)> <size (int)> <repeats (int)>")
+		print("Methods: \n\t# : blah")
 		return
 
-	# path = "data/yellow-small.csv"
-	print("threshold: ",THRESH)
-	validation(path, n)
+	path = 'data/jester-data-1.csv'
+	parsed = Parse(path)
+
+	out = open(outcsv, "w")
+	csv_out = csv.writer(out, delimiter=',', quotechar='"')
+	csv_out.writerow(['userId', 'itermID', 'Actual_Rating', 'Predicted_Rating', 'Delta_Rating'])
+
+	evaluate(parsed, method, size, csv_out)
 
 
-
-def validation(path, n, classifier="C45", m=3, k=10, N=5, hot=False, dataset = "Data"):
-	
-	# parse input
-	im = Importer(path)
-
-	im.parse_data(hot=hot)
-
-	# build tree
-	#tree = DecisionTree(im)
-	#tree.build_tree()
-	#print(tree.tree_to_json())
-	df = im.get_frame()
-
+def evaluate(parsed, method, size, out):
+	'''
 	if n >= 2:
 		pass
 	elif n == 0 or n == 0: 
@@ -56,96 +44,67 @@ def validation(path, n, classifier="C45", m=3, k=10, N=5, hot=False, dataset = "
 	elif n == -1:
 		print("all but one")
 		n = df.shape[0]
+	
 
+	n = parsed.ratings.shape[0]
 	kf = KFold(n_splits=n, shuffle=True)
+	'''
 
-	labels = im.get_values()
-
+	labels = parsed.get_labels()
+	df = parsed.get_df()
 	open("results.txt", "w")
 
-	conf_list = []
+	#conf_list = []
+	count = 0
+	'''
 	for trainidx, testidx in kf.split(df):
 		train = df.iloc[trainidx]
 		test =  df.iloc[testidx]
+	'''
+	pairs = []
+	while count < size:
+		while 1:
+			rand_uid = randint(0, parsed.users)
+			rand_iid = randint(0, parsed.jokes)
+			if(df[rand_uid, rand_iid] != 99):
+				pairs += [(rand_uid, rand_iid)]
+				break
 
-		if(classifier == "C45"):
-			tree = DecisionTree.C45(train, im.get_fields().copy(), im.get_variable(), THRESH)
-			conf = get_confusionC45(tree, test, im.get_variable(), labels)
-			conf_list += [conf]
 
-		elif(classifier == "KNN"):
-			conf = get_confusionKNN(df, test, im.get_variable(), labels, k)
-			conf_list += [conf]
-
-		elif(classifier == "RF"):
-			trees = randomForest.randomForest(df, test, im.get_variable(), m, k, N)
-			conf = get_confusionRF(trees, test, im.get_variable(), labels, m, k, N)
-			conf_list += [conf]
-		
+	if(method == 1):
+		conf = get_confusion_method_1(parsed, pairs, out)
+#		conf_list += [conf]		
 	
 	print_output(conf_list, labels, n)
 
 		#print(conf)
 
 
-def get_confusionC45(tree, test, var, labels, out = "results.txt"):
+def get_confusion_method_1(parsed, pairs, out_csv):
 	pred = []
 	true = []
 	# output = open("output/{}-c45.txt".format(out), "w")
-	output = open(out, "a")
-	output.write("C45 Classifications:\n\n")
-	
-	for idx, row in test.iterrows():
-		val = classifier.Classify.classifyC45(tree, row)
-		pred += [val]
-		true += [row[var]]
-		output.write("-- Row: -- \n{} -> \n-- Prediction --: {}\n\n".format(row, val))
 
-	return confusion_matrix(true, pred, labels)
-
-
-def get_confusionKNN(data, test, var, labels, k, out = "results.txt"):
-	pred = []
-	true = []
-	output = open(out, "a")
-	output.write("KNN Classifications:\n\n")
-	
-	for idx, row in test.iterrows():
-		val = classifier.Classify.classifyKNN(data.drop(idx), row, var, k)
-		pred += [val]
-		if(val == "None"):
-			true += [val]
+	for uid, iid in pairs:
+		val = classifier.Classify.classify_method_1(parsed, uid, iid)
+		real = parsed.ratings[uid, iid]
+		
+		if val >= 5:
+			prec = "Recommended"
 		else:
-			true += [row[var]]
-		output.write("-- Row: -- \n{} -> \n-- Prediction --: {}\n\n".format(str(row), val))
+			prec = "Not Recommended"
 
-	#print("pred: ", pred)
-	#print("true: ", true)
+		if real >= 5:
+			trec = "Recommended"
+		else: 
+			trec = "Not Recommended"
 
-	return confusion_matrix(true, pred, labels)
+		pred += [prec]
+		true += [trec]
+		out_csv.writerow([uid, iid, real, val, real-val])
 
-def get_confusionRF(trees, test, var, labels, m, k, n, out = "results.txt"):
-	pred = []
-	true = []
-	output = open(out, "a")
-	output.write("Random Forest Classifications:\n\n")
-	
-	for idx, row in test.iterrows():
-		val = classifier.Classify.classifyRF(trees, row, var)
-		pred += [val]
-		#print("pred: ", val, "true: ", row[var])
-		if(val == "None"):
-			true += [val]
-		else:
-			true += [row[var]]
-		output.write("-- Row: -- \n{} -> \n-- Prediction --: {}\n\n".format(row, val))
+	return confusion_matrix(true, pred, ['Recommended', 'Not Recommended'])
 
-		#write(out, str(row)+"  ---  prediction: " + str(val))
-
-	#print("pred: ", pred)
-	#print("true: ", true)
-
-	return confusion_matrix(true, pred, labels)
 
 def add_confusions(conf_list):
 	#print(conf_list)

@@ -49,6 +49,9 @@ class Parse:
 		print("\nNumber of jokes answered per user: ")
 		print(self.num_answered[:100])
 
+	def get_labels(self):
+		return self.ratings.columns
+
 			
 
 
