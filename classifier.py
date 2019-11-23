@@ -3,11 +3,12 @@
 # Grayson Clendenon (gclenden@calpoly.edu)
 import sys
 from importer import Importer
-from InduceC45 import DecisionTree
-import knn
-import randomForest
+#from InduceC45 import DecisionTree
+#import knn
+#import randomForest
 import json
 import string
+import col_filtering
 
 def main():
 	THRESH = 0.4
@@ -97,6 +98,8 @@ class Classify:
 			return randomForest.classifyFromForest(trees, row)
 
 
+	def classify_method_1(parsed, uid, iid):
+		return col_filtering.method_1(parsed, uid, iid)
 
 		#return randomForest.randomForest(data, row, var, m, k, N)
 

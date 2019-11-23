@@ -16,3 +16,6 @@ def main():
 
 "recommendations will be in the range -10 to +10."
 "A score of >= 5 is considered a recommended joke."
+
+def method_1(parsed, uid, iid):
+	return 5

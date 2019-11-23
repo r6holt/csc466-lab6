@@ -11,6 +11,8 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
 from random import randint
 import csv
+import parser
+
 
 
 def main():
@@ -25,9 +27,9 @@ def main():
 		return
 
 	path = 'data/jester-data-1.csv'
-	parsed = Parse(path)
+	parsed = parser.Parse(path)
 
-	out = open(outcsv, "w")
+	out = open("out_method_1.csv", "w")
 	csv_out = csv.writer(out, delimiter=',', quotechar='"')
 	csv_out.writerow(['userId', 'itermID', 'Actual_Rating', 'Predicted_Rating', 'Delta_Rating'])
 
@@ -50,7 +52,8 @@ def evaluate(parsed, method, size, out):
 	kf = KFold(n_splits=n, shuffle=True)
 	'''
 
-	labels = parsed.get_labels()
+	#labels = parsed.get_labels()
+	labels = ['T', 'F']
 	df = parsed.get_df()
 	open("results.txt", "w")
 
@@ -66,16 +69,23 @@ def evaluate(parsed, method, size, out):
 		while 1:
 			rand_uid = randint(0, parsed.users)
 			rand_iid = randint(0, parsed.jokes)
-			if(df[rand_uid, rand_iid] != 99):
+			if df.iloc[rand_uid, rand_iid] != 99:
 				pairs += [(rand_uid, rand_iid)]
+				count+=1
 				break
 
 
 	if(method == 1):
-		conf = get_confusion_method_1(parsed, pairs, out)
+		conf, errors = get_confusion_method_1(parsed, pairs, out)
 #		conf_list += [conf]		
+
+	else:
+		print("no matching method")
+		return
 	
-	print_output(conf_list, labels, n)
+	print_output([conf], labels, errors)#, n)
+
+	#print_output(conf_list, labels, n)
 
 		#print(conf)
 
@@ -83,11 +93,13 @@ def evaluate(parsed, method, size, out):
 def get_confusion_method_1(parsed, pairs, out_csv):
 	pred = []
 	true = []
+	errors = []
 	# output = open("output/{}-c45.txt".format(out), "w")
 
 	for uid, iid in pairs:
 		val = classifier.Classify.classify_method_1(parsed, uid, iid)
-		real = parsed.ratings[uid, iid]
+		real = parsed.ratings.iloc[uid, iid]
+		error = abs(real - val)
 		
 		if val >= 5:
 			prec = "Recommended"
@@ -101,9 +113,10 @@ def get_confusion_method_1(parsed, pairs, out_csv):
 
 		pred += [prec]
 		true += [trec]
-		out_csv.writerow([uid, iid, real, val, real-val])
+		errors += [error]
+		out_csv.writerow([uid, iid, real, val, error])
 
-	return confusion_matrix(true, pred, ['Recommended', 'Not Recommended'])
+	return confusion_matrix(true, pred, ['Recommended', 'Not Recommended']), errors
 
 
 def add_confusions(conf_list):
@@ -121,6 +134,7 @@ def add_confusions(conf_list):
 
 def print_confusion(conf, labels):
 	#print(type(conf))
+	#labels = ["T", "F"]
 	print("  ", end=" ")
 	for label in labels:
 		print(label, end = " ")
@@ -201,6 +215,8 @@ def pf_from_conf(conf, labels):
 def fmes_from_stats(precision, recall):
 	numer = 2 * precision * recall
 	denom = precision + recall
+	if(denom == 0):
+		return 0
 	fmes = numer / denom
 	return fmes
 
@@ -225,38 +241,47 @@ def accuracy_from_conf(conf, labels):
 
 	return correct/total
 
-def print_output(conf_list, labels, n):
+def mae_from_errors(errors):
+	n = len(errors)
+	total = 0
+	for error in errors:
+		total += error
+
+	return total/n
+
+def print_output(conf_list, labels, errors):#, n):
 	print("--------------------------")
 	print("\tVALIDATION")
 	print("--------------------------")
-	print("Folds:  {}\n".format(n))
+	#print("Folds:  {}\n".format(n))
 	overall_conf = add_confusions(conf_list)
 	#print("overall_conf", overall_conf)
 	print("Confusion Matrix: ")
 	print_confusion(overall_conf, labels)
-	'''precision = precision_from_conf(overall_conf, labels)
+	precision = precision_from_conf(overall_conf, labels)
 	print("Precision: ", precision)
 	recall = recall_from_conf(overall_conf, labels)
 	print("Recall: ", recall)
-	pf = pf_from_conf(overall_conf, labels)
-	print("pf: ", pf)
+	#pf = pf_from_conf(overall_conf, labels)
+	#print("pf: ", pf)
 	fmes = fmes_from_stats(precision, recall)
 	print("F-measure: ", fmes)
-	'''
+	
 	overall_accuracy = accuracy_from_conf(overall_conf, labels)
 	print("Overall Accuracy: ", overall_accuracy)
-	acc_list = []
 
-	for conf in conf_list:
-		#print(conf)
-		#print()
-		acc_list += [accuracy_from_conf(conf, labels)]
+	mae = mae_from_errors(errors)
+	print("\nMAE: ", mae)
+	#acc_list = []
 
-	average_accuracy = np.mean(acc_list)
-	print("Average Accuracy: ",  average_accuracy)
+	#for conf in conf_list:
+	#	acc_list += [accuracy_from_conf(conf, labels)]
+
+	#average_accuracy = np.mean(acc_list)
+	#print("Average Accuracy: ",  average_accuracy)
 	#print(acc_list)
-	print("Overall Error Rate: ", 1-overall_accuracy)
-	print("Average Error Rate: ", 1-average_accuracy)
+	#print("Overall Error Rate: ", 1-overall_accuracy)
+	#print("Average Error Rate: ", 1-average_accuracy)
 
 if __name__ == '__main__':
 	main()
