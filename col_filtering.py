@@ -58,76 +58,76 @@ def pearsonCorr(users):
     corr_matrix = np.corrcoef(uratings)
     return corr_matrix
 
-def knnHelper(corr_matrix, k, source_user_ids):
+def knnHelper(corr_matrix, k, source_uids):
     user_knn = {}
-    for uid in source_user_ids:
-        user = corr_matrix[uid]
-        sorted_neighbors = sorted(range(len(user)), key=lambda k: 1-abs(user[k]))
-        user_knn[uid] = sorted_neighbors[1:]
+    for uid in source_uids:
+        u = corr_matrix[uid]
+        neighbors = sorted(range(len(u)), key=lambda k: 1-abs(u[k]))
+        user_knn[uid] = neighbors[1:]
     return user_knn
 
 def meanUtility(matrix, jokes, users, uid, iid):
-    user = users[uid]
-    joke = jokes[iid]
-    prev_rating = matrix[uid, iid]
-    if prev_rating != 99:
+    u = users[uid]
+    j = jokes[iid]
+    prev = matrix[uid, iid]
+    if prev != 99:
         matrix[uid, iid] = 99
-    pred_rating = joke.mean_rating
-    if pred_rating > 10:
-        pred_rating = 10
-    elif pred_rating < -10:
-        pred_rating = -10
-    matrix[uid, iid] = prev_rating
-    return pred_rating
+    pred = j.mean_rating
+    if pred > 10:
+        pred = 10
+    elif pred < -10:
+        pred = -10
+    matrix[uid, iid] = prev
+    return pred
 
 def weightedSum(matrix, jokes, users, corr_matrix, uid, iid):
-    user = users[uid]
-    joke = jokes[iid]
-    prev_rating = matrix[uid, iid]
-    if prev_rating != 99:
+    u = users[uid]
+    j = jokes[iid]
+    prev = matrix[uid, iid]
+    if prev != 99:
         matrix[uid, iid] = 99
-    sum_of_weights = 0
-    sum_of_products = 0
-    for i, user_rating in enumerate(joke.ratings):
-        if user_rating != 99:
+    wcount = 0
+    pcount = 0
+    for i, urating in enumerate(j.ratings):
+        if urating != 99:
             sim = corr_matrix[uid, i]
-            sum_of_weights += abs(sim)
-            sum_of_products += sim * user_rating
-    pred_rating = (1/sum_of_weights) * sum_of_products
-    if pred_rating > 10:
-        pred_rating = 10
-    elif pred_rating < -10:
-        pred_rating = -10
-    matrix[uid, iid] = prev_rating
-    return pred_rating
+            wcount += abs(sim)
+            pcount += sim * urating
+    pred = (1/wcount) * pcount
+    if pred > 10:
+        pred = 10
+    elif pred < -10:
+        pred = -10
+    matrix[uid, iid] = prev
+    return pred
 
 
 def knnWeighted(matrix, jokes, users, corr_matrix, uid_knn, k, uid, iid):
-    user = users[uid]
-    joke = jokes[iid]
-    prev_rating = matrix[uid, iid]
-    if prev_rating != 99:
+    u = users[uid]
+    j = jokes[iid]
+    prev = matrix[uid, iid]
+    if prev != 99:
         matrix[uid, iid] = 99
-    sum_of_weights = 0
-    sum_of_products = 0
+    wcount = 0
+    pcount = 0
     knn = uid_knn[uid]
-    num_neighbors_added = 0
-    for neighborId in knn:
-        if num_neighbors_added == k:
+    ncount = 0
+    for nid in knn:
+        if ncount == k:
             break
-        user_rating = joke.ratings[neighborId]
-        if user_rating != 99:
-            sim = corr_matrix[uid, neighborId]
-            sum_of_weights += abs(sim)
-            sum_of_products += sim * user_rating
-            num_neighbors_added += 1
-    pred_rating = (1/sum_of_weights) * sum_of_products
-    if pred_rating > 10:
-        pred_rating = 10
-    elif pred_rating < -10:
-        pred_rating = -10
-    matrix[uid, iid] = prev_rating
-    return pred_rating
+        urating = j.ratings[nid]
+        if urating != 99:
+            sim = corr_matrix[uid, nid]
+            wcount += abs(sim)
+            pcount += sim * urating
+            ncount += 1
+    pred = (1/wcount) * pcount
+    if pred > 10:
+        pred = 10
+    elif pred < -10:
+        pred = -10
+    matrix[uid, iid] = prev
+    return pred
 
 
 def main():
