@@ -12,10 +12,10 @@ class User:
         self.ratings = ratings
         self.num_ratings = 0
         self.sum_ratings = 0
-        for rating in ratings:
-            if rating != 99:
+        for r in ratings:
+            if r != 99:
                 self.num_ratings += 1
-                self.sum_ratings += rating
+                self.sum_ratings += r
         self.mean_rating = self.sum_ratings / self.num_ratings
 
 class Joke:
@@ -24,47 +24,47 @@ class Joke:
         self.num_users = len(self.ratings)
         self.num_ratings = 0
         self.sum_ratings = 0
-        for rating in ratings:
-            if rating != 99:
+        for r in ratings:
+            if r != 99:
                 self.num_ratings += 1
-                self.sum_ratings += rating
+                self.sum_ratings += r
         self.mean_rating = self.sum_ratings / self.num_ratings
         self.inverse_user_freq = math.log2(self.num_users / self.num_ratings)
 
 def getArgs():
-    parser = argparse.ArgumentParser(description='Collaborative Filtering')
-    parser.add_argument('-f', '--filepath', help='path to joke data file', required=True)
-    return vars(parser.parse_args())
+    p = argparse.ArgumentParser(description='Collab Filtering')
+    p.add_argument('-f', '--filepath', help='data file path', required=True)
+    return vars(p.parse_args())
 
 def parse(filepath):
     df = pd.read_csv(filepath, sep=',', header=None)
-    num_ratings_per_user = df[0]
+    ratings_per_user = df[0]
     df = df.drop(df.columns[0], axis=1)
     jokes = []
     users = []
-    for joke in df:
-        joke_ratings = np.array(df[joke])
-        jokes.append(Joke(joke_ratings))
-    for i, user in df.iterrows():
-        user_ratings = np.array(user)
-        users.append(User(num_ratings_per_user[i], user_ratings))
+    for j in df:
+        jratings = np.array(df[j])
+        jokes.append(Joke(jratings))
+    for i, u in df.iterrows():
+        uratings = np.array(u)
+        users.append(User(ratings_per_user[i], uratings))
     return df.values, jokes, users
 
 def pearsonCorr(users):
-    dense_user_ratings = []
-    for user in users:
-        ratings = np.array([rating if rating != 99 else 0 for rating in user.ratings])
-        dense_user_ratings.append(ratings)
-    corr_matrix = np.corrcoef(dense_user_ratings)
+    uratings = []
+    for u in users:
+        ratings = np.array([r if r != 99 else 0 for r in u.ratings])
+        uratings.append(ratings)
+    corr_matrix = np.corrcoef(uratings)
     return corr_matrix
 
 def knnHelper(corr_matrix, k, source_user_ids):
-    user_to_knn = {}
+    user_knn = {}
     for uid in source_user_ids:
         user = corr_matrix[uid]
         sorted_neighbors = sorted(range(len(user)), key=lambda k: 1-abs(user[k]))
-        user_to_knn[uid] = sorted_neighbors[1:]
-    return user_to_knn
+        user_knn[uid] = sorted_neighbors[1:]
+    return user_knn
 
 def meanUtility(matrix, jokes, users, uid, iid):
     user = users[uid]
