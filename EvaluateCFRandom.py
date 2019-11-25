@@ -23,7 +23,12 @@ def main():
 
 	else:
 		print("syntax: python3 validaiton.py <method (int)> <size (int)> <repeats (int)>")
-		print("Methods: \n\t# : blah")
+		print("Methods: ")
+		print("\t0 : dummy")
+		print("\t1 : Mean Utility")
+		print("\t2 : Weighted Sum")
+		print("\t3 : Weighted nNN")
+		print("\t4 : Average nNN")
 		return
 
 	#all parsing should be done here
@@ -79,8 +84,8 @@ def evaluate(parsed, method, size, out):
 				break
 
 
-	if(method == 1):
-		conf, errors = get_confusion_method_1(parsed, pairs, out)
+	if(method == 0):
+		conf, errors = get_confusion_method_0(parsed, pairs, out)
 #		conf_list += [conf]		
 
 	else:
@@ -94,14 +99,14 @@ def evaluate(parsed, method, size, out):
 		#print(conf)
 
 
-def get_confusion_method_1(parsed, pairs, out_csv):
+def get_confusion_method_0(parsed, pairs, out_csv):
 	pred = []
 	true = []
 	errors = []
 	# output = open("output/{}-c45.txt".format(out), "w")
 
 	for uid, iid in pairs:
-		val = classifier.Classify.classify_method_1(parsed, uid, iid)
+		val = classifier.Classify.classify_method_0(parsed, uid, iid)
 		real = parsed.ratings.iloc[uid, iid]
 		error = abs(real - val)
 		

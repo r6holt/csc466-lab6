@@ -1,0 +1,5 @@
+userId,itermID,Actual_Rating,Predicted_Rating,Delta_Rating
+1,50,3.16,5,1.8399999999999999
+75,34,0.0,5,5.0
+25,20,8.25,5,3.25
+1010,33,-3.2,5,8.2

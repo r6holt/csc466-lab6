@@ -98,8 +98,10 @@ class Classify:
 			return randomForest.classifyFromForest(trees, row)
 
 
-	def classify_method_1(parsed, uid, iid):
+	def classify_method_0(parsed, uid, iid):
 		return 5
+
+	
 		#return col_filtering.method_1(parsed, uid, iid)
 
 
