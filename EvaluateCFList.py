@@ -22,7 +22,7 @@ def main():
 		filename = sys.argv[2]
 
 	else:
-		print("syntax: python3 validaiton.py <method (int)> <filenaem>")
+		print("syntax: python3 EvaluateCFList.py <method (int)> <filenaem>")
 		print("Methods: ")
 		print("\t0 : dummy")
 		print("\t1 : Mean Utility")

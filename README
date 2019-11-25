@@ -1,1 +1,7 @@
 # csc466-lab6
+
+EvaluateCFList.py:
+	python3 EvaluateCFList.py <method (int)> <filenaem>
+
+EvaluateCFRandom.py:
+	python3 EvaluateCFRandom.py <method (int)> <size (int)> <repeats (int)>

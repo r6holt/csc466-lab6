@@ -22,7 +22,7 @@ def main():
 		repeats = int(sys.argv[3])
 
 	else:
-		print("syntax: python3 validaiton.py <method (int)> <size (int)> <repeats (int)>")
+		print("syntax: python3 EvaluateCFRandom.py <method (int)> <size (int)> <repeats (int)>")
 		print("Methods: ")
 		print("\t0 : dummy")
 		print("\t1 : Mean Utility")
