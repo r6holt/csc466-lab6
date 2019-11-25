@@ -130,6 +130,58 @@ def knnWeighted(matrix, jokes, users, corr_matrix, uid_knn, k, uid, iid):
     return pred
 
 
+def knnAverage(matrix, jokes, users, corr_matrix, uid_knn, k, uid, iid):
+    u = users[uid]
+    j = jokes[iid]
+    prev = matrix[uid, iid]
+    if prev != 99:
+        matrix[uid, iid] = 99
+
+    pcount = 0
+    #print(uid_knn.shape, "\n")
+    knn = uid_knn[uid]
+    ncount = 0
+    for nid in knn:
+        if ncount == k:
+            break
+        urating = j.ratings[nid]
+        if urating != 99:
+            pcount += urating
+            ncount += 1
+    pred = (1/k) * pcount
+    if pred > 10:
+        pred = 10
+    elif pred < -10:
+        pred = -10
+    matrix[uid, iid] = prev
+    return pred
+
+def knnAverageBetter(parsed, uid, iid):
+	prev = parsed.ratings[uid, iid]
+
+	if prev != 99:
+        matrix[uid, iid] = 99
+
+    pcount = 0
+
+    #print(uid_knn.shape, "\n")
+    knn = uid_knn[uid]				#not sure how to solve this yet, this is the one challenge
+    ncount = 0
+    for nid in knn:
+        if ncount == k:
+            break
+        urating = parsed.ratings[iid, nid]
+        if urating != 99:
+            pcount += urating
+            ncount += 1
+    pred = (1/k) * pcount
+    if pred > 10:
+        pred = 10
+    elif pred < -10:
+        pred = -10
+    matrix[uid, iid] = prev
+    return pred
+
 def main():
     args = getArgs()
     filepath = args['filepath']
@@ -141,8 +193,11 @@ def main():
     print(mrating)
     wrating = weightedSum(matrix, jokes, users, corr_matrix, 2, 5)
     print(wrating)
-    kwrating = knnWeighted(matrix, jokes, users, corr_matrix, uid_knn, k, 2, 5)
+    kwrating = knnWeighted(matrix, jokes, users, corr_matrix, uid_knn, k, 3, 5)
     print(kwrating)
+
+    karating = knnAverage(matrix, jokes, users, corr_matrix, uid_knn, k, 3, 5)
+    print(karating)
 
 if __name__ == '__main__':
     main()

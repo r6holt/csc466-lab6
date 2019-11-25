@@ -26,14 +26,17 @@ def main():
 		print("Methods: \n\t# : blah")
 		return
 
+	#all parsing should be done here
 	path = 'data/jester-data-1.csv'
 	parsed = parser.Parse(path)
 
+	#prep the output files
 	out = open("out_method_1.csv", "w")
 	csv_out = csv.writer(out, delimiter=',', quotechar='"')
 	csv_out.writerow(['userId', 'itermID', 'Actual_Rating', 'Predicted_Rating', 'Delta_Rating'])
 
-	evaluate(parsed, method, size, csv_out)
+	for _ in range(repeats):
+		evaluate(parsed, method, size, csv_out)
 
 
 def evaluate(parsed, method, size, out):
@@ -55,7 +58,7 @@ def evaluate(parsed, method, size, out):
 	#labels = parsed.get_labels()
 	labels = ['T', 'F']
 	df = parsed.get_df()
-	open("results.txt", "w")
+	#open("results.txt", "w")
 
 	#conf_list = []
 	count = 0
@@ -67,8 +70,9 @@ def evaluate(parsed, method, size, out):
 	pairs = []
 	while count < size:
 		while 1:
-			rand_uid = randint(0, parsed.users)
-			rand_iid = randint(0, parsed.jokes)
+			rand_uid = randint(0, parsed.users-1)
+			rand_iid = randint(0, parsed.jokes-1)
+			#print(rand_uid, rand_iid)
 			if df.iloc[rand_uid, rand_iid] != 99:
 				pairs += [(rand_uid, rand_iid)]
 				count+=1
@@ -272,6 +276,7 @@ def print_output(conf_list, labels, errors):#, n):
 
 	mae = mae_from_errors(errors)
 	print("\nMAE: ", mae)
+	print("\n\n")
 	#acc_list = []
 
 	#for conf in conf_list:

@@ -99,9 +99,8 @@ class Classify:
 
 
 	def classify_method_1(parsed, uid, iid):
-		return col_filtering.method_1(parsed, uid, iid)
-
-		#return randomForest.randomForest(data, row, var, m, k, N)
+		return 5
+		#return col_filtering.method_1(parsed, uid, iid)
 
 
 	def compare(self, predicted, actual):
