@@ -1,6 +1,7 @@
-# CSC466 - Lab 3
+# CSC466 - Lab 6
 # Ryan Holt (ryholt@calpoly.edu)
 # Grayson Clendenon (gclenden@calpoly.edu)
+# Adam Havstad (ahavstad@calpoly.edu)
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder

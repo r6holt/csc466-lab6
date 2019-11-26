@@ -1,6 +1,7 @@
-# CSC466 - Lab 3
+# CSC466 - Lab 6
 # Ryan Holt (ryholt@calpoly.edu)
 # Grayson Clendenon (gclenden@calpoly.edu)
+# Adam Havstad (ahavstad@calpoly.edu)
 import sys
 import numpy as np
 from importer import Importer
