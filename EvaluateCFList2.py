@@ -1,3 +1,8 @@
+# CSC466 - Lab 6
+# Ryan Holt (ryholt@calpoly.edu)
+# Grayson Clendenon (gclenden@calpoly.edu)
+# Adam Havstad (ahavstad@calpoly.edu)
+
 import col_filtering
 import sys, argparse, statistics, random
 
