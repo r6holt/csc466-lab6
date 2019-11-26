@@ -1,4 +1,7 @@
-# csc466-lab6
+# CSC466 - Lab 6
+# Ryan Holt (ryholt@calpoly.edu)
+# Grayson Clendenon (gclenden@calpoly.edu)
+# Adam Havstad (ahavstad@calpoly.edu)
 
 EvaluateCFList.py:
 	python3 EvaluateCFList.py <method (int)> <filenaem>
