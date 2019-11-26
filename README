@@ -2,6 +2,8 @@
 
 EvaluateCFList.py:
 	python3 EvaluateCFList.py <method (int)> <filenaem>
+	new: python3 EvaluateCFList2.py -f data/jester-data-1.csv -m w -t data/test.csv
 
 EvaluateCFRandom.py:
 	python3 EvaluateCFRandom.py <method (int)> <size (int)> <repeats (int)>
+	new: python3 EvaluateCFRandom2.py -f data/jester-data-1.csv -m knnw -s 5 -r 3
